@@ -1,0 +1,97 @@
+{
+  "name": "react-axios-progressbar",
+  "version": "0.1.0",
+  "description": "Show a ProgressBar in React whenever an axios request is in progress.",
+  "files": [
+    "lib"
+  ],
+  "main": "lib/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/42BV/react-axios-progressbar.git"
+  },
+  "keywords": [
+    "React",
+    "Axios",
+    "Progressbar"
+  ],
+  "author": "Gido Manders",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/42BV/react-axios-progressbar/issues"
+  },
+  "homepage": "https://github.com/42BV/react-axios-progressbar#readme",
+  "peerDependencies": {
+    "react": "^17.0.2",
+    "axios": "^0.25.0"
+  },
+  "devDependencies": {
+    "@testing-library/react-hooks": "7.0.2",
+    "@types/enzyme-to-json": "1.5.4",
+    "@types/jest": "27.4.0",
+    "@types/react": "17.0.38",
+    "@typescript-eslint/eslint-plugin": "5.10.0",
+    "@typescript-eslint/parser": "5.10.0",
+    "@wojtekmaj/enzyme-adapter-react-17": "0.6.6",
+    "axios": "0.25.0",
+    "enzyme": "3.11.0",
+    "enzyme-adapter-react-16": "1.15.6",
+    "enzyme-to-json": "3.6.2",
+    "eslint": "8.7.0",
+    "eslint-config-prettier": "8.3.0",
+    "eslint-plugin-jest": "25.3.4",
+    "eslint-plugin-react": "7.28.0",
+    "eslint-plugin-react-hooks": "4.3.0",
+    "husky": "7.0.4",
+    "jest": "27.4.7",
+    "lint-staged": "12.2.2",
+    "np": "7.6.0",
+    "prettier": "2.5.1",
+    "react": "17.0.2",
+    "react-dom": "17.0.2",
+    "ts-jest": "27.1.3",
+    "typescript": "4.5.5"
+  },
+  "scripts": {
+    "start": "jest test --watch",
+    "clean": "rm -rf dist",
+    "test": "npm run lint && npm run test:ts && npm run test:coverage",
+    "test:ts": "tsc --version && tsc --noEmit",
+    "test:coverage": "jest test --coverage --no-cache",
+    "test:watch": "jest --watch --coverage",
+    "lint": "npm run lint:src && npm run lint:test",
+    "lint:src": "eslint \"src/**\" --ext js,jsx,ts,tsx --max-warnings=0",
+    "lint:test": "eslint \"tests/**\" --ext js,jsx,ts,tsx --max-warnings=0",
+    "release": "np --otp",
+    "prepare": "husky install"
+  },
+  "jest": {
+    "collectCoverageFrom": [
+      "<rootDir>/src/*.{ts,tsx}"
+    ],
+    "coverageDirectory": "<rootDir>/coverage",
+    "coverageThreshold": {
+      "global": {
+        "branches": 100,
+        "functions": 100,
+        "lines": 100,
+        "statements": 100
+      }
+    },
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js"
+    ],
+    "transform": {
+      "\\.tsx?$": "ts-jest"
+    },
+    "restoreMocks": true,
+    "testRegex": "/tests/.*\\.(ts|tsx)$"
+  },
+  "lint-staged": {
+    "{src,tests}/**/*.{js,jsx,json,scss,ts,tsx}": [
+      "prettier --single-quote --trailing-comma none --write"
+    ]
+  }
+}
