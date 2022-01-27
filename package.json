@@ -1,6 +1,6 @@
 {
   "name": "react-axios-progressbar",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Show a ProgressBar in React whenever an axios request is in progress.",
   "files": [
     "lib"
