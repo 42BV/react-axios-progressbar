@@ -59,10 +59,12 @@
     "test:ts": "tsc --version && tsc --noEmit",
     "test:coverage": "jest test --coverage --no-cache",
     "test:watch": "jest --watch --coverage",
+    "tsc": "npm run clean && tsc --version && tsc",
     "lint": "npm run lint:src && npm run lint:test",
     "lint:src": "eslint \"src/**\" --ext js,jsx,ts,tsx --max-warnings=0",
     "lint:test": "eslint \"tests/**\" --ext js,jsx,ts,tsx --max-warnings=0",
     "release": "np --otp",
+    "dev:publish": "./scripts/dev-publish.sh",
     "prepare": "husky install"
   },
   "jest": {

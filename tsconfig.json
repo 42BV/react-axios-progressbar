@@ -1,30 +1,20 @@
 {
   "compilerOptions": {
-    "target": "es5",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "module": "esnext",
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
+    "noUnusedLocals": false,
     "noImplicitReturns": false,
     "noFallthroughCasesInSwitch": true,
-    "noEmit": true,
+    "allowSyntheticDefaultImports": true,
+    "declaration": true,
+    "downlevelIteration": true,
+    "lib": ["dom", "es6", "es2015.promise"],
+    "module": "commonjs",
+    "moduleResolution": "Node",
+    "outDir": "./lib",
+    "strict": true,
+    "target": "es6",
+    "esModuleInterop": true,
     "jsx": "react-jsx"
   },
-  "include": [
-    "src"
-  ],
-  "exclude": [
-    "scripts"
-  ]
+  "files": ["src/index.tsx"],
+  "exclude": ["node_modules", "scripts"]
 }
