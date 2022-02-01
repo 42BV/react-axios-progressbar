@@ -1,19 +1,18 @@
-import { useProgressBarMode } from '../src/useProgressBarMode';
+import { activeRequests, newRequest, requestCompleted, setActiveRequests, useProgressBarMode } from '../src/useProgressBarMode';
 import { act, renderHook } from '@testing-library/react-hooks';
 
 jest.useFakeTimers();
 
 describe('Hook: useProgressBarMode', () => {
-  it('should trigger all modes when the request takes long enough to complete', () => {
+  it('should trigger all modes when the request takes long enough to complete', async () => {
     expect.assertions(11);
 
-    const { result } = renderHook(() => useProgressBarMode());
+    const { result, rerender } = renderHook(() => useProgressBarMode());
 
     expect(result.current.mode).toBe('hibernate');
 
-    act(() => {
-      result.current.newRequest();
-    });
+    newRequest();
+    rerender();
 
     expect(result.current.mode).toBe('init');
 
@@ -35,9 +34,8 @@ describe('Hook: useProgressBarMode', () => {
 
     expect(result.current.mode).toBe('active');
 
-    act(() => {
-      result.current.requestCompleted();
-    });
+    requestCompleted();
+    rerender();
 
     expect(result.current.mode).toBe('active');
 
@@ -75,11 +73,10 @@ describe('Hook: useProgressBarMode', () => {
   it('should move back to "hibernate" when the request completes within 100 milliseconds', () => {
     expect.assertions(4);
 
-    const { result } = renderHook(() => useProgressBarMode());
+    const { result, rerender } = renderHook(() => useProgressBarMode());
 
-    act(() => {
-      result.current.newRequest();
-    });
+    newRequest();
+    rerender();
 
     expect(result.current.mode).toBe('init');
 
@@ -89,9 +86,8 @@ describe('Hook: useProgressBarMode', () => {
 
     expect(result.current.mode).toBe('init');
 
-    act(() => {
-      result.current.requestCompleted();
-    });
+    requestCompleted();
+    rerender();
 
     expect(result.current.mode).toBe('hibernate');
 
@@ -105,11 +101,10 @@ describe('Hook: useProgressBarMode', () => {
   it('should not change mode when multiple requests are triggered while mode is active', () => {
     expect.assertions(4);
 
-    const { result } = renderHook(() => useProgressBarMode());
+    const { result, rerender } = renderHook(() => useProgressBarMode());
 
-    act(() => {
-      result.current.newRequest();
-    });
+    newRequest();
+    rerender();
 
     expect(result.current.mode).toBe('init');
 
@@ -119,9 +114,8 @@ describe('Hook: useProgressBarMode', () => {
 
     expect(result.current.mode).toBe('active');
 
-    act(() => {
-      result.current.newRequest();
-    });
+    newRequest();
+    rerender();
 
     expect(result.current.mode).toBe('active');
 
@@ -135,11 +129,10 @@ describe('Hook: useProgressBarMode', () => {
   it('should not change mode when multiple requests are triggered within 100 milliseconds', () => {
     expect.assertions(3);
 
-    const { result } = renderHook(() => useProgressBarMode());
+    const { result, rerender } = renderHook(() => useProgressBarMode());
 
-    act(() => {
-      result.current.newRequest();
-    });
+    newRequest();
+    rerender();
 
     expect(result.current.mode).toBe('init');
 
@@ -149,10 +142,32 @@ describe('Hook: useProgressBarMode', () => {
 
     expect(result.current.mode).toBe('init');
 
-    act(() => {
-      result.current.newRequest();
-    });
+    newRequest();
+    rerender();
 
     expect(result.current.mode).toBe('init');
+  });
+});
+
+test('newRequest', () => {
+  setActiveRequests(0);
+  expect(activeRequests).toBe(0);
+  newRequest();
+  expect(activeRequests).toBe(1);
+});
+
+describe('requestCompleted', () => {
+  it('should decrease activeRequests when activeRequests above 0', () => {
+    setActiveRequests(1);
+    expect(activeRequests).toBe(1);
+    requestCompleted();
+    expect(activeRequests).toBe(0);
+  });
+
+  it('should not decrease activeRequests when activeRequests 0', () => {
+    setActiveRequests(0);
+    expect(activeRequests).toBe(0);
+    requestCompleted();
+    expect(activeRequests).toBe(0);
   });
 });

@@ -18,9 +18,7 @@ import { Mode } from '../src/useProgressBarMode';
 describe('Component: ProgressBar', () => {
   function setup({ mode, style }: { mode: Mode; style?: Record<string, unknown> }) {
     jest.spyOn(ProgressBarMode, 'useProgressBarMode').mockReturnValue({
-      mode,
-      newRequest: jest.fn(),
-      requestCompleted: jest.fn()
+      mode
     });
 
     const progressBar = shallow(<ProgressBar style={style} />);
@@ -65,21 +63,8 @@ describe('Component: ProgressBar', () => {
 });
 
 describe('Axios interceptors', () => {
-  function setup() {
-    const newRequestSpy = jest.fn();
-    const requestCompletedSpy = jest.fn();
-
-    jest.spyOn(ProgressBarMode, 'useProgressBarMode').mockReturnValue({
-      mode: 'hibernate',
-      newRequest: newRequestSpy,
-      requestCompleted: requestCompletedSpy
-    });
-
-    return { newRequestSpy, requestCompletedSpy };
-  }
-
   it('should call "newRequest" when making a request', () => {
-    const { newRequestSpy } = setup();
+    const newRequestSpy = jest.spyOn(ProgressBarMode, 'newRequest');
 
     onNewRequest({ url: '/hello-world' });
 
@@ -87,7 +72,7 @@ describe('Axios interceptors', () => {
   });
 
   it('should call "requestCompleted" on success', () => {
-    const { requestCompletedSpy } = setup();
+    const requestCompletedSpy = jest.spyOn(ProgressBarMode, 'requestCompleted');
 
     onRequestFulfilled({
       status: 200,
@@ -105,7 +90,7 @@ describe('Axios interceptors', () => {
   it('should call "requestCompleted" on failure', async () => {
     expect.assertions(2);
 
-    const { requestCompletedSpy } = setup();
+    const requestCompletedSpy = jest.spyOn(ProgressBarMode, 'requestCompleted');
 
     await onRequestRejected('some random error').catch(e => expect(e).toEqual('some random error'));
 

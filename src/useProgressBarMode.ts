@@ -19,9 +19,10 @@ import { useEffect, useState } from 'react';
 
 export type Mode = 'hibernate' | 'init' | 'active' | 'complete';
 
+export let activeRequests = 0;
+
 export function useProgressBarMode() {
   const [ mode, setMode ] = useState<Mode>('hibernate');
-  const [ activeRequests, setActiveRequests ] = useState(0);
 
   useEffect(() => {
     if (mode === 'complete') {
@@ -67,13 +68,28 @@ export function useProgressBarMode() {
     }
   }, [ activeRequests, mode, setMode ]);
 
-  function newRequest() {
-    setActiveRequests(activeRequests + 1);
-  }
+  return { mode };
+}
 
-  function requestCompleted() {
-    setActiveRequests(activeRequests - 1);
-  }
+export function newRequest() {
+  activeRequests++;
+}
 
-  return { mode, newRequest, requestCompleted };
+export function requestCompleted() {
+  if (activeRequests > 0) {
+    activeRequests--;
+  }
+}
+
+/**
+ * Sets the number of activeRequests manually.
+ *
+ * This method exists for testing purposes, so you should not
+ * use it.
+ *
+ * @export
+ * @param {number} value
+ */
+export function setActiveRequests(value: number) {
+  activeRequests = value;
 }
