@@ -1,6 +1,5 @@
 import React from 'react';
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
-import { newRequest, requestCompleted, useProgressBarMode } from './useProgressBarMode';
+import { useProgressBarMode } from './useProgressBarMode';
 
 type Props = {
   style?: Record<string, unknown>;
@@ -32,22 +31,3 @@ export function ProgressBar({ style }: Props) {
     />
   );
 }
-
-export function onNewRequest(config: AxiosRequestConfig) {
-  newRequest();
-  return config;
-}
-
-axios.interceptors.request.use(onNewRequest);
-
-export function onRequestFulfilled(response: AxiosResponse) {
-  requestCompleted();
-  return response;
-}
-
-export function onRequestRejected(error: unknown) {
-  requestCompleted();
-  return Promise.reject(error);
-}
-
-axios.interceptors.response.use(onRequestFulfilled, onRequestRejected);

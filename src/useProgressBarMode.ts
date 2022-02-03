@@ -1,4 +1,3 @@
-
 /*
   The modes form a state machine with the following flow
 
@@ -16,13 +15,13 @@
   complete: the animation runs quickly to 100%
 */
 import { useEffect, useState } from 'react';
+import { useActiveRequests } from './useActiveRequests';
 
 export type Mode = 'hibernate' | 'init' | 'active' | 'complete';
 
-export let activeRequests = 0;
-
 export function useProgressBarMode() {
   const [ mode, setMode ] = useState<Mode>('hibernate');
+  const activeRequests = useActiveRequests();
 
   useEffect(() => {
     if (mode === 'complete') {
@@ -69,27 +68,4 @@ export function useProgressBarMode() {
   }, [ activeRequests, mode, setMode ]);
 
   return { mode };
-}
-
-export function newRequest() {
-  activeRequests++;
-}
-
-export function requestCompleted() {
-  if (activeRequests > 0) {
-    activeRequests--;
-  }
-}
-
-/**
- * Sets the number of activeRequests manually.
- *
- * This method exists for testing purposes, so you should not
- * use it.
- *
- * @export
- * @param {number} value
- */
-export function setActiveRequests(value: number) {
-  activeRequests = value;
 }

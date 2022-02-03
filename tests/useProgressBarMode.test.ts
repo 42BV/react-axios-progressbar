@@ -1,173 +1,169 @@
-import { activeRequests, newRequest, requestCompleted, setActiveRequests, useProgressBarMode } from '../src/useProgressBarMode';
+import React from 'react';
+import { Mode, useProgressBarMode } from '../src/useProgressBarMode';
+import * as ActiveRequests from '../src/useActiveRequests';
 import { act, renderHook } from '@testing-library/react-hooks';
 
 jest.useFakeTimers();
 
 describe('Hook: useProgressBarMode', () => {
-  it('should trigger all modes when the request takes long enough to complete', async () => {
-    expect.assertions(11);
+  function setup({ mode, activeRequests }: { mode: Mode; activeRequests: number; }) {
+    const setModeSpy = jest.fn();
+    jest.spyOn(React, 'useState').mockReturnValue([ mode, setModeSpy ]);
+    jest.spyOn(ActiveRequests, 'useActiveRequests').mockReturnValue(activeRequests);
+    jest.spyOn(React, 'useEffect').mockImplementation((f) => f());
 
-    const { result, rerender } = renderHook(() => useProgressBarMode());
+    renderHook(() => useProgressBarMode());
 
-    expect(result.current.mode).toBe('hibernate');
+    return { setModeSpy };
+  }
 
-    newRequest();
-    rerender();
+  it('should set mode to init when mode is hibernate and a new request is started', () => {
+    expect.assertions(2);
 
-    expect(result.current.mode).toBe('init');
+    const { setModeSpy } = setup({ mode: 'hibernate', activeRequests: 1 });
+
+    expect(setModeSpy).toBeCalledTimes(1);
+    expect(setModeSpy).toBeCalledWith('init');
+  });
+
+  it('should set mode to hibernate when mode is init and activeRequests becomes 0', () => {
+    expect.assertions(2);
+
+    const { setModeSpy } = setup({ mode: 'init', activeRequests: 0 });
+
+    expect(setModeSpy).toBeCalledTimes(1);
+    expect(setModeSpy).toBeCalledWith('hibernate');
+  });
+
+  it('should set mode to active when mode is init and there are still active requests after 100 milliseconds', () => {
+    expect.assertions(3);
+
+    const { setModeSpy } = setup({ mode: 'init', activeRequests: 1 });
 
     act(() => {
       jest.advanceTimersByTime(99);
     });
 
-    expect(result.current.mode).toBe('init');
+    expect(setModeSpy).toBeCalledTimes(0);
 
     act(() => {
       jest.advanceTimersByTime(1);
     });
 
-    expect(result.current.mode).toBe('active');
+    expect(setModeSpy).toBeCalledTimes(1);
+    expect(setModeSpy).toBeCalledWith('active');
+  });
+
+  it('should not set mode to active when mode is init and request completed within 100 milliseconds', () => {
+    expect.assertions(2);
+
+    type Destructor = () => void;
+    let clearEffect: void | Destructor;
+    jest.spyOn(React, 'useEffect').mockImplementationOnce((f) => clearEffect = f());
+
+    const { setModeSpy } = setup({ mode: 'init', activeRequests: 1 });
+
+    act(() => {
+      jest.advanceTimersByTime(50);
+    });
+
+    expect(setModeSpy).toBeCalledTimes(0);
+
+    // @ts-expect-error Test mock
+    clearEffect();
 
     act(() => {
       jest.runAllTimers();
     });
 
-    expect(result.current.mode).toBe('active');
+    expect(setModeSpy).toBeCalledTimes(0);
+  });
 
-    requestCompleted();
-    rerender();
+  it('should set mode to complete when mode is active and there are no active requests after 200 milliseconds', () => {
+    expect.assertions(3);
 
-    expect(result.current.mode).toBe('active');
+    const { setModeSpy } = setup({ mode: 'active', activeRequests: 0 });
 
     act(() => {
       jest.advanceTimersByTime(199);
     });
 
-    expect(result.current.mode).toBe('active');
+    expect(setModeSpy).toBeCalledTimes(0);
 
     act(() => {
       jest.advanceTimersByTime(1);
     });
 
-    expect(result.current.mode).toBe('complete');
+    expect(setModeSpy).toBeCalledTimes(1);
+    expect(setModeSpy).toBeCalledWith('complete');
+  });
+
+  it('should not set mode to complete when mode is active and a new request is started within 200 milliseconds', () => {
+    expect.assertions(2);
+
+    type Destructor = () => void;
+    let clearEffect: void | Destructor;
+    jest.spyOn(React, 'useEffect').mockImplementationOnce((f) => clearEffect = f());
+
+    const { setModeSpy } = setup({ mode: 'active', activeRequests: 0 });
+
+    act(() => {
+      jest.advanceTimersByTime(150);
+    });
+
+    expect(setModeSpy).toBeCalledTimes(0);
+
+    // @ts-expect-error Test mock
+    clearEffect();
+
+    act(() => {
+      jest.runAllTimers();
+    });
+
+    expect(setModeSpy).toBeCalledTimes(0);
+  });
+
+  it('should set mode to hibernate after 1000 milliseconds when mode is complete', () => {
+    expect.assertions(3);
+
+    const { setModeSpy } = setup({ mode: 'complete', activeRequests: 0 });
 
     act(() => {
       jest.advanceTimersByTime(999);
     });
 
-    expect(result.current.mode).toBe('complete');
+    expect(setModeSpy).toBeCalledTimes(0);
 
     act(() => {
       jest.advanceTimersByTime(1);
     });
 
-    expect(result.current.mode).toBe('hibernate');
+    expect(setModeSpy).toBeCalledTimes(1);
+    expect(setModeSpy).toBeCalledWith('hibernate');
+  });
+
+  it('should not set mode to hibernate when mode is complete and a new request is started within 1000 milliseconds', () => {
+    expect.assertions(2);
+
+    type Destructor = () => void;
+    let clearEffect: void | Destructor;
+    jest.spyOn(React, 'useEffect').mockImplementationOnce((f) => clearEffect = f());
+
+    const { setModeSpy } = setup({ mode: 'complete', activeRequests: 0 });
+
+    act(() => {
+      jest.advanceTimersByTime(950);
+    });
+
+    expect(setModeSpy).toBeCalledTimes(0);
+
+    // @ts-expect-error Test mock
+    clearEffect();
 
     act(() => {
       jest.runAllTimers();
     });
 
-    expect(result.current.mode).toBe('hibernate');
-  });
-
-  it('should move back to "hibernate" when the request completes within 100 milliseconds', () => {
-    expect.assertions(4);
-
-    const { result, rerender } = renderHook(() => useProgressBarMode());
-
-    newRequest();
-    rerender();
-
-    expect(result.current.mode).toBe('init');
-
-    act(() => {
-      jest.advanceTimersByTime(50);
-    });
-
-    expect(result.current.mode).toBe('init');
-
-    requestCompleted();
-    rerender();
-
-    expect(result.current.mode).toBe('hibernate');
-
-    act(() => {
-      jest.runAllTimers();
-    });
-
-    expect(result.current.mode).toBe('hibernate');
-  });
-
-  it('should not change mode when multiple requests are triggered while mode is active', () => {
-    expect.assertions(4);
-
-    const { result, rerender } = renderHook(() => useProgressBarMode());
-
-    newRequest();
-    rerender();
-
-    expect(result.current.mode).toBe('init');
-
-    act(() => {
-      jest.runAllTimers();
-    });
-
-    expect(result.current.mode).toBe('active');
-
-    newRequest();
-    rerender();
-
-    expect(result.current.mode).toBe('active');
-
-    act(() => {
-      jest.runAllTimers();
-    });
-
-    expect(result.current.mode).toBe('active');
-  });
-
-  it('should not change mode when multiple requests are triggered within 100 milliseconds', () => {
-    expect.assertions(3);
-
-    const { result, rerender } = renderHook(() => useProgressBarMode());
-
-    newRequest();
-    rerender();
-
-    expect(result.current.mode).toBe('init');
-
-    act(() => {
-      jest.advanceTimersByTime(50);
-    });
-
-    expect(result.current.mode).toBe('init');
-
-    newRequest();
-    rerender();
-
-    expect(result.current.mode).toBe('init');
-  });
-});
-
-test('newRequest', () => {
-  setActiveRequests(0);
-  expect(activeRequests).toBe(0);
-  newRequest();
-  expect(activeRequests).toBe(1);
-});
-
-describe('requestCompleted', () => {
-  it('should decrease activeRequests when activeRequests above 0', () => {
-    setActiveRequests(1);
-    expect(activeRequests).toBe(1);
-    requestCompleted();
-    expect(activeRequests).toBe(0);
-  });
-
-  it('should not decrease activeRequests when activeRequests 0', () => {
-    setActiveRequests(0);
-    expect(activeRequests).toBe(0);
-    requestCompleted();
-    expect(activeRequests).toBe(0);
+    expect(setModeSpy).toBeCalledTimes(0);
   });
 });
