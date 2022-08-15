@@ -1,7 +1,7 @@
 import React from 'react';
 import { Mode, useProgressBarMode } from '../src/useProgressBarMode';
 import * as ActiveRequests from '../src/useActiveRequests';
-import { act, renderHook } from '@testing-library/react-hooks';
+import { act, renderHook } from '@testing-library/react';
 
 jest.useFakeTimers();
 
