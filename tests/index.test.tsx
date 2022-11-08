@@ -5,6 +5,7 @@ import * as ProgressBarMode from '../src/useProgressBarMode';
 import { Mode } from '../src/useProgressBarMode';
 import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import axios from 'axios';
 
 describe('Component: ProgressBar', () => {
   function setup({ mode, style }: { mode: Mode; style?: Record<string, unknown> }) {
@@ -12,7 +13,7 @@ describe('Component: ProgressBar', () => {
       mode
     });
 
-    const { container } = render(<ProgressBar style={style} />);
+    const { container } = render(<ProgressBar style={style} axiosInstance={axios} />);
 
     return { container };
   }

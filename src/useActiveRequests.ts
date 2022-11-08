@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 
-export function useActiveRequests() {
+export function useActiveRequests(axiosInstance: AxiosInstance) {
   const [ activeRequests, setActiveRequests ] = useState(0);
 
   function onNewRequest(config: AxiosRequestConfig) {
@@ -24,14 +24,14 @@ export function useActiveRequests() {
   }
 
   useEffect(() => {
-    const requestInterceptor = axios.interceptors.request.use(onNewRequest);
-    const responseInterceptor = axios.interceptors.response.use(onRequestFulfilled, onRequestRejected);
+    const requestInterceptor = axiosInstance.interceptors.request.use(onNewRequest);
+    const responseInterceptor = axiosInstance.interceptors.response.use(onRequestFulfilled, onRequestRejected);
 
     return () => {
-      axios.interceptors.request.eject(requestInterceptor);
-      axios.interceptors.response.eject(responseInterceptor);
+      axiosInstance.interceptors.request.eject(requestInterceptor);
+      axiosInstance.interceptors.response.eject(responseInterceptor);
     }
-  });
+  }, [axiosInstance]);
 
   return activeRequests;
 }

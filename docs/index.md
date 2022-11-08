@@ -2,7 +2,7 @@
 layout: default
 title: Introduction
 nav_order: 1
-description: 'Documentation for mad-spring-connect.'
+description: 'Documentation for react-axios-progressbar.'
 has_children: true
 permalink: /
 ---

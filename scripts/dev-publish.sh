@@ -59,4 +59,4 @@ printf -- '\033[32m SUCCESS: Succesfully published packages \033[0m\n'
 
 # Provide instructions
 version=$(awk -F'"' '/"version": ".+"/{ print $4; exit; }' package.json)
-printf -- '\033[32m Now go to your test project set the version of "@42.nl/spring-connect" to "%s" then run "npm install --registry http://localhost:4873" \033[0m\n' $version
+printf -- '\033[32m Now go to your test project set the version of "react-axios-progressbar" to "%s" then run "npm install --registry http://localhost:4873" \033[0m\n' $version

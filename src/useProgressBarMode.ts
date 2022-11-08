@@ -16,12 +16,13 @@
 */
 import { useEffect, useState } from 'react';
 import { useActiveRequests } from './useActiveRequests';
+import { AxiosInstance } from 'axios';
 
 export type Mode = 'hibernate' | 'init' | 'active' | 'complete';
 
-export function useProgressBarMode() {
+export function useProgressBarMode(axiosInstance: AxiosInstance) {
   const [ mode, setMode ] = useState<Mode>('hibernate');
-  const activeRequests = useActiveRequests();
+  const activeRequests = useActiveRequests(axiosInstance);
 
   useEffect(() => {
     if (mode === 'complete') {

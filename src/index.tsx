@@ -1,12 +1,14 @@
 import React from 'react';
 import { useProgressBarMode } from './useProgressBarMode';
+import { AxiosInstance } from 'axios';
 
 type Props = {
   style?: Record<string, unknown>;
+  axiosInstance: AxiosInstance;
 };
 
-export function ProgressBar({ style }: Props) {
-  const { mode } = useProgressBarMode();
+export function ProgressBar({ style, axiosInstance }: Props) {
+  const { mode } = useProgressBarMode(axiosInstance);
 
   if (mode === 'hibernate') {
     return null;

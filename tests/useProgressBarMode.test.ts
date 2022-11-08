@@ -2,6 +2,7 @@ import React from 'react';
 import { Mode, useProgressBarMode } from '../src/useProgressBarMode';
 import * as ActiveRequests from '../src/useActiveRequests';
 import { act, renderHook } from '@testing-library/react';
+import axios from 'axios';
 
 jest.useFakeTimers();
 
@@ -12,7 +13,7 @@ describe('Hook: useProgressBarMode', () => {
     jest.spyOn(ActiveRequests, 'useActiveRequests').mockReturnValue(activeRequests);
     jest.spyOn(React, 'useEffect').mockImplementation((f) => f());
 
-    renderHook(() => useProgressBarMode());
+    renderHook(() => useProgressBarMode(axios));
 
     return { setModeSpy };
   }

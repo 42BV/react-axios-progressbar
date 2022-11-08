@@ -14,7 +14,7 @@ describe('Hook: useActiveRequests', () => {
     const setActiveRequestsSpy = jest.fn();
     jest.spyOn(React, 'useState').mockReturnValue([ activeRequests, setActiveRequestsSpy ]);
 
-    renderHook(() => useActiveRequests());
+    renderHook(() => useActiveRequests(axios));
 
     const interceptors = (axios.interceptors.request.use as jest.Mock).mock;
     const mockRequest = interceptors.calls[0][0];
