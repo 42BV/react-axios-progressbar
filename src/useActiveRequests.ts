@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import { AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 
 export function useActiveRequests(axiosInstance: AxiosInstance) {
   const [ activeRequests, setActiveRequests ] = useState(0);
 
-  function onNewRequest(config: AxiosRequestConfig) {
+  function onNewRequest(config: InternalAxiosRequestConfig | Promise<InternalAxiosRequestConfig>) {
     setActiveRequests(activeRequests + 1);
     return config;
   }
