@@ -6,8 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - **Full test suite** (lint + typecheck + coverage): `npm test`
 - **Run tests in watch mode**: `npm run test:watch`
-- **Run a single test file**: `npx jest tests/useProgressBarMode.test.ts`
-- **Run a single test by name**: `npx jest -t "should set mode to init"`
+- **Run a single test file**: `npx vitest run tests/useProgressBarMode.test.ts`
+- **Run a single test by name**: `npx vitest run -t "should set mode to init"`
 - **Type check only**: `npm run test:ts`
 - **Lint**: `npm run lint`
 - **Build** (clean + compile to `lib/`): `npm run tsc`
@@ -43,9 +43,9 @@ The `ProgressBar` component renders a positioned `<div>` with CSS transition-bas
 ## Key Conventions
 
 - **100% test coverage required** — branches, functions, lines, and statements are all enforced at 100%
-- Tests live in `tests/` and use `@testing-library/react` with `renderHook` and Jest fake timers
-- Tests mock `React.useState` and `React.useEffect` directly to control hook state
-- ESLint enforces `expect.assertions` in async test functions (`jest/prefer-expect-assertions`)
+- Tests live in `tests/` and use `@testing-library/react` with `renderHook` and Vitest fake timers
+- Tests mock React hooks via `vi.mock('react', ...)` with `vi.hoisted()` (ESM-compatible approach)
+- ESLint 9 flat config (`eslint.config.mjs`) with `typescript-eslint`
 - Prettier: single quotes, no trailing commas, double quotes in JSX
 - Pre-commit hook runs `lint-staged` (Prettier formatting)
 - TypeScript strict mode; only `src/index.tsx` is in the compilation (other src files are pulled in via imports)
