@@ -26,16 +26,15 @@
     "react": "^17.0.2||^18.0.0||^19.0.0"
   },
   "devDependencies": {
+    "@eslint/js": "9.39.2",
     "@testing-library/dom": "10.4.0",
     "@testing-library/jest-dom": "6.6.3",
     "@testing-library/react": "16.1.0",
     "@types/enzyme-to-json": "1.5.7",
     "@types/jest": "29.5.14",
     "@types/react": "19.0.7",
-    "@typescript-eslint/eslint-plugin": "8.20.0",
-    "@typescript-eslint/parser": "8.20.0",
     "axios": "1.7.9",
-    "eslint": "8.57.1",
+    "eslint": "9.39.2",
     "eslint-config-prettier": "10.0.1",
     "eslint-plugin-jest": "28.10.0",
     "eslint-plugin-react": "7.37.4",
@@ -49,7 +48,8 @@
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "ts-jest": "29.2.5",
-    "typescript": "5.7.3"
+    "typescript": "5.7.3",
+    "typescript-eslint": "8.55.0"
   },
   "scripts": {
     "start": "jest test --watch",
@@ -59,9 +59,7 @@
     "test:coverage": "jest test --coverage --no-cache",
     "test:watch": "jest --watch --coverage",
     "tsc": "npm run clean && tsc --version && tsc",
-    "lint": "npm run lint:src && npm run lint:test",
-    "lint:src": "eslint \"src/**\" --ext js,jsx,ts,tsx --max-warnings=0",
-    "lint:test": "eslint \"tests/**\" --ext js,jsx,ts,tsx --max-warnings=0",
+    "lint": "eslint src tests --max-warnings=0",
     "release": "npm run tsc && np",
     "dev:publish": "./scripts/dev-publish.sh",
     "prepare": "husky install"
