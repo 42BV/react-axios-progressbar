@@ -1,27 +1,51 @@
-import React from 'react';
 import { renderHook } from '@testing-library/react';
 import { useActiveRequests } from '../src/useActiveRequests';
 import axios from 'axios';
+import type { Mock } from 'vitest';
 
-jest.mock('axios');
+const { useStateMock } = vi.hoisted(() => ({
+  useStateMock: vi.fn()
+}));
+
+vi.mock('react', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('react')>();
+  return { ...actual, useState: useStateMock };
+});
+
+vi.mock('axios', () => ({
+  default: {
+    interceptors: {
+      request: { use: vi.fn(), eject: vi.fn() },
+      response: { use: vi.fn(), eject: vi.fn() }
+    }
+  }
+}));
 
 describe('Hook: useActiveRequests', () => {
   beforeEach(() => {
-    (axios.interceptors.response.use as jest.Mock).mockReset();
+    (axios.interceptors.request.use as Mock).mockClear();
+    (axios.interceptors.response.use as Mock).mockClear();
   });
 
   function setup({ activeRequests }: { activeRequests: number }) {
-    const setActiveRequestsSpy = jest.fn();
-    jest.spyOn(React, 'useState').mockReturnValue([ activeRequests, setActiveRequestsSpy ]);
+    const setActiveRequestsSpy = vi.fn();
+    useStateMock.mockReturnValue([activeRequests, setActiveRequestsSpy]);
 
     renderHook(() => useActiveRequests(axios));
 
-    const interceptors = (axios.interceptors.request.use as jest.Mock).mock;
-    const mockRequest = interceptors.calls[0][0];
-    const mockResponseFulfilled = interceptors.calls[1][0];
-    const mockResponseRejected = interceptors.calls[1][1];
+    const mockRequest = (axios.interceptors.request.use as Mock).mock
+      .calls[0][0];
+    const mockResponseFulfilled = (axios.interceptors.response.use as Mock).mock
+      .calls[0][0];
+    const mockResponseRejected = (axios.interceptors.response.use as Mock).mock
+      .calls[0][1];
 
-    return { mockRequest, mockResponseFulfilled, mockResponseRejected, setActiveRequestsSpy };
+    return {
+      mockRequest,
+      mockResponseFulfilled,
+      mockResponseRejected,
+      setActiveRequestsSpy
+    };
   }
 
   it('should increase when starting a request', () => {
@@ -38,16 +62,18 @@ describe('Hook: useActiveRequests', () => {
   it('should decrease on success', () => {
     expect.assertions(2);
 
-    const { setActiveRequestsSpy, mockResponseFulfilled } = setup({ activeRequests: 1 });
+    const { setActiveRequestsSpy, mockResponseFulfilled } = setup({
+      activeRequests: 1
+    });
 
     mockResponseFulfilled({
       status: 200,
       statusText: 'Ok',
       data: 'some random response',
       config: {
-        url: '/hello-world',
+        url: '/hello-world'
       },
-      headers: {},
+      headers: {}
     });
 
     expect(setActiveRequestsSpy).toBeCalledTimes(1);
@@ -57,9 +83,13 @@ describe('Hook: useActiveRequests', () => {
   it('should decrease on failure', async () => {
     expect.assertions(3);
 
-    const { setActiveRequestsSpy, mockResponseRejected } = setup({ activeRequests: 1 });
+    const { setActiveRequestsSpy, mockResponseRejected } = setup({
+      activeRequests: 1
+    });
 
-    await mockResponseRejected('some random error').catch((e: string) => expect(e).toBe('some random error'));
+    await mockResponseRejected('some random error').catch((e: string) =>
+      expect(e).toBe('some random error')
+    );
 
     expect(setActiveRequestsSpy).toBeCalledTimes(1);
     expect(setActiveRequestsSpy).toBeCalledWith(0);
@@ -68,7 +98,9 @@ describe('Hook: useActiveRequests', () => {
   it('should not accidentally decrease below 0', async () => {
     expect.assertions(2);
 
-    const { setActiveRequestsSpy, mockResponseFulfilled } = setup({ activeRequests: 0 });
+    const { setActiveRequestsSpy, mockResponseFulfilled } = setup({
+      activeRequests: 0
+    });
 
     await mockResponseFulfilled('some random error');
 

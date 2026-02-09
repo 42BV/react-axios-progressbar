@@ -1,17 +1,34 @@
-import React from 'react';
 import { Mode, useProgressBarMode } from '../src/useProgressBarMode';
 import * as ActiveRequests from '../src/useActiveRequests';
 import { act, renderHook } from '@testing-library/react';
 import axios from 'axios';
 
-jest.useFakeTimers();
+const { useStateMock, useEffectMock } = vi.hoisted(() => ({
+  useStateMock: vi.fn(),
+  useEffectMock: vi.fn()
+}));
+
+vi.mock('react', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('react')>();
+  return { ...actual, useState: useStateMock, useEffect: useEffectMock };
+});
+
+vi.useFakeTimers();
 
 describe('Hook: useProgressBarMode', () => {
-  function setup({ mode, activeRequests }: { mode: Mode; activeRequests: number; }) {
-    const setModeSpy = jest.fn();
-    jest.spyOn(React, 'useState').mockReturnValue([ mode, setModeSpy ]);
-    jest.spyOn(ActiveRequests, 'useActiveRequests').mockReturnValue(activeRequests);
-    jest.spyOn(React, 'useEffect').mockImplementation((f) => f());
+  function setup({
+    mode,
+    activeRequests
+  }: {
+    mode: Mode;
+    activeRequests: number;
+  }) {
+    const setModeSpy = vi.fn();
+    useStateMock.mockReturnValue([mode, setModeSpy]);
+    vi.spyOn(ActiveRequests, 'useActiveRequests').mockReturnValue(
+      activeRequests
+    );
+    useEffectMock.mockImplementation((f: () => void) => f());
 
     renderHook(() => useProgressBarMode(axios));
 
@@ -42,13 +59,13 @@ describe('Hook: useProgressBarMode', () => {
     const { setModeSpy } = setup({ mode: 'init', activeRequests: 1 });
 
     act(() => {
-      jest.advanceTimersByTime(99);
+      vi.advanceTimersByTime(99);
     });
 
     expect(setModeSpy).toBeCalledTimes(0);
 
     act(() => {
-      jest.advanceTimersByTime(1);
+      vi.advanceTimersByTime(1);
     });
 
     expect(setModeSpy).toBeCalledTimes(1);
@@ -60,12 +77,14 @@ describe('Hook: useProgressBarMode', () => {
 
     type Destructor = () => void;
     let clearEffect: void | Destructor;
-    jest.spyOn(React, 'useEffect').mockImplementationOnce((f) => clearEffect = f());
+    useEffectMock.mockImplementationOnce(
+      (f: () => void | Destructor) => (clearEffect = f())
+    );
 
     const { setModeSpy } = setup({ mode: 'init', activeRequests: 1 });
 
     act(() => {
-      jest.advanceTimersByTime(50);
+      vi.advanceTimersByTime(50);
     });
 
     expect(setModeSpy).toBeCalledTimes(0);
@@ -74,7 +93,7 @@ describe('Hook: useProgressBarMode', () => {
     clearEffect();
 
     act(() => {
-      jest.runAllTimers();
+      vi.runAllTimers();
     });
 
     expect(setModeSpy).toBeCalledTimes(0);
@@ -86,13 +105,13 @@ describe('Hook: useProgressBarMode', () => {
     const { setModeSpy } = setup({ mode: 'active', activeRequests: 0 });
 
     act(() => {
-      jest.advanceTimersByTime(199);
+      vi.advanceTimersByTime(199);
     });
 
     expect(setModeSpy).toBeCalledTimes(0);
 
     act(() => {
-      jest.advanceTimersByTime(1);
+      vi.advanceTimersByTime(1);
     });
 
     expect(setModeSpy).toBeCalledTimes(1);
@@ -104,12 +123,14 @@ describe('Hook: useProgressBarMode', () => {
 
     type Destructor = () => void;
     let clearEffect: void | Destructor;
-    jest.spyOn(React, 'useEffect').mockImplementationOnce((f) => clearEffect = f());
+    useEffectMock.mockImplementationOnce(
+      (f: () => void | Destructor) => (clearEffect = f())
+    );
 
     const { setModeSpy } = setup({ mode: 'active', activeRequests: 0 });
 
     act(() => {
-      jest.advanceTimersByTime(150);
+      vi.advanceTimersByTime(150);
     });
 
     expect(setModeSpy).toBeCalledTimes(0);
@@ -118,7 +139,7 @@ describe('Hook: useProgressBarMode', () => {
     clearEffect();
 
     act(() => {
-      jest.runAllTimers();
+      vi.runAllTimers();
     });
 
     expect(setModeSpy).toBeCalledTimes(0);
@@ -130,13 +151,13 @@ describe('Hook: useProgressBarMode', () => {
     const { setModeSpy } = setup({ mode: 'complete', activeRequests: 0 });
 
     act(() => {
-      jest.advanceTimersByTime(999);
+      vi.advanceTimersByTime(999);
     });
 
     expect(setModeSpy).toBeCalledTimes(0);
 
     act(() => {
-      jest.advanceTimersByTime(1);
+      vi.advanceTimersByTime(1);
     });
 
     expect(setModeSpy).toBeCalledTimes(1);
@@ -148,12 +169,14 @@ describe('Hook: useProgressBarMode', () => {
 
     type Destructor = () => void;
     let clearEffect: void | Destructor;
-    jest.spyOn(React, 'useEffect').mockImplementationOnce((f) => clearEffect = f());
+    useEffectMock.mockImplementationOnce(
+      (f: () => void | Destructor) => (clearEffect = f())
+    );
 
     const { setModeSpy } = setup({ mode: 'complete', activeRequests: 0 });
 
     act(() => {
-      jest.advanceTimersByTime(950);
+      vi.advanceTimersByTime(950);
     });
 
     expect(setModeSpy).toBeCalledTimes(0);
@@ -162,7 +185,7 @@ describe('Hook: useProgressBarMode', () => {
     clearEffect();
 
     act(() => {
-      jest.runAllTimers();
+      vi.runAllTimers();
     });
 
     expect(setModeSpy).toBeCalledTimes(0);
